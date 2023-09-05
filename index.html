@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SVG Texte avec Fond Dégradé</title>
+    <script type="text/javascript">
+      function updateSVG() {
+        const couleur1 = document.getElementById("couleur1").value;
+        const couleur2 = document.getElementById("couleur2").value;
+        const texte = document.getElementById("texte").value;
+        const largeur = document.getElementById("largeur").value;
+        const hauteur = document.getElementById("hauteur").value;
+
+        // Mettre à jour le dégradé
+        document
+          .getElementById("gradientStop1")
+          .setAttribute("stop-color", couleur1);
+        document
+          .getElementById("gradientStop2")
+          .setAttribute("stop-color", couleur2);
+
+        // Mettre à jour le texte
+        document.getElementById("texteSVG").textContent = texte;
+
+        // Mettre à jour les dimensions
+        const svgElement = document.getElementById("monSVG");
+        svgElement.setAttribute("width", largeur);
+        svgElement.setAttribute("height", hauteur);
+        document.getElementById("rectangle").setAttribute("width", largeur);
+        document.getElementById("rectangle").setAttribute("height", hauteur);
+      }
+
+      function downloadSVG() {
+        const svgElement = document.getElementById("monSVG");
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgElement);
+        const blob = new Blob([svgString], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.setAttribute("download", "image.svg");
+        a.setAttribute("href", url);
+        a.click();
+      }
+    </script>
+  </head>
+  <body>
+    <label for="couleur1">Couleur 1:</label>
+    <input type="color" id="couleur1" value="#FF0000" />
+    <label for="couleur2">Couleur 2:</label>
+    <input type="color" id="couleur2" value="#0000FF" />
+    <label for="texte">Texte:</label>
+    <input type="text" id="texte" value="Bonjour" />
+    <label for="largeur">Largeur:</label>
+    <input type="number" id="largeur" value="300" />
+    <label for="hauteur">Hauteur:</label>
+    <input type="number" id="hauteur" value="100" />
+    <button onclick="updateSVG()">Mettre à jour</button>
+    <button onclick="downloadSVG()">Télécharger SVG</button>
+
+    <svg id="monSVG" width="300" height="100">
+      <defs>
+        <linearGradient id="monGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop
+            id="gradientStop1"
+            offset="0%"
+            style="stop-color: rgb(255, 0, 0); stop-opacity: 1"
+          />
+          <stop
+            id="gradientStop2"
+            offset="100%"
+            style="stop-color: rgb(0, 0, 255); stop-opacity: 1"
+          />
+        </linearGradient>
+      </defs>
+      <rect
+        id="rectangle"
+        x="0"
+        y="0"
+        rx="15"
+        ry="15"
+        width="300"
+        height="100"
+        style="fill: url(#monGradient)"
+      />
+      <text
+        id="texteSVG"
+        x="50%"
+        y="50%"
+        dominant-baseline="middle"
+        text-anchor="middle"
+        font-size="24"
+        font-family="Verdana"
+        fill="white"
+      >
+        Bonjour
+      </text>
+    </svg>
+  </body>
+</html>
