@@ -1,22 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>SVG Texte avec Fond Dégradé</title>
+    <title>SVG Texte avec Masque d'Opacité</title>
     <script type="text/javascript">
       function updateSVG() {
-        const couleur1 = document.getElementById("couleur1").value;
-        const couleur2 = document.getElementById("couleur2").value;
         const texte = document.getElementById("texte").value;
         const largeur = document.getElementById("largeur").value;
         const hauteur = document.getElementById("hauteur").value;
-
-        // Mettre à jour le dégradé
-        document
-          .getElementById("gradientStop1")
-          .setAttribute("stop-color", couleur1);
-        document
-          .getElementById("gradientStop2")
-          .setAttribute("stop-color", couleur2);
 
         // Mettre à jour le texte
         document.getElementById("texteSVG").textContent = texte;
@@ -25,8 +15,13 @@
         const svgElement = document.getElementById("monSVG");
         svgElement.setAttribute("width", largeur);
         svgElement.setAttribute("height", hauteur);
+
         document.getElementById("rectangle").setAttribute("width", largeur);
         document.getElementById("rectangle").setAttribute("height", hauteur);
+
+        // Mettre à jour le rectangle du masque avec les nouvelles dimensions
+        document.getElementById("maskRect").setAttribute("width", largeur);
+        document.getElementById("maskRect").setAttribute("height", hauteur);
       }
 
       function downloadSVG() {
@@ -43,10 +38,6 @@
     </script>
   </head>
   <body>
-    <label for="couleur1">Couleur 1:</label>
-    <input type="color" id="couleur1" value="#FF0000" />
-    <label for="couleur2">Couleur 2:</label>
-    <input type="color" id="couleur2" value="#0000FF" />
     <label for="texte">Texte:</label>
     <input type="text" id="texte" value="Bonjour" />
     <label for="largeur">Largeur:</label>
@@ -58,18 +49,21 @@
 
     <svg id="monSVG" width="300" height="100">
       <defs>
-        <linearGradient id="monGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop
-            id="gradientStop1"
-            offset="0%"
-            style="stop-color: rgb(255, 0, 0); stop-opacity: 1"
-          />
-          <stop
-            id="gradientStop2"
-            offset="100%"
-            style="stop-color: rgb(0, 0, 255); stop-opacity: 1"
-          />
+        <!-- Définir le masque de dégradé d'opacité -->
+        <linearGradient id="maskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color: white; stop-opacity: 1" />
+          <stop offset="100%" style="stop-color: white; stop-opacity: 0" />
         </linearGradient>
+        <mask id="mask">
+          <rect
+            id="maskRect"
+            x="0"
+            y="0"
+            width="300"
+            height="100"
+            fill="url(#maskGradient)"
+          />
+        </mask>
       </defs>
       <rect
         id="rectangle"
@@ -79,7 +73,7 @@
         ry="15"
         width="300"
         height="100"
-        style="fill: url(#monGradient)"
+        style="fill: black"
       />
       <text
         id="texteSVG"
@@ -93,6 +87,15 @@
       >
         Bonjour
       </text>
+      <!-- Application du masque -->
+      <rect
+        x="0"
+        y="0"
+        width="300"
+        height="100"
+        fill="black"
+        mask="url(#mask)"
+      />
     </svg>
   </body>
 </html>
