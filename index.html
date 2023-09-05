@@ -1,101 +1,206 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>SVG Texte avec Masque d'Opacité</title>
+    <title>Text2SVG editor</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      .form-group {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 1em;
+      }
+      .form-label {
+        flex: 1;
+        text-align: left;
+      }
+      .form-input {
+        flex: 2;
+        text-align: left;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #svg-container {
+        border: 1px solid gray;
+        display: inline-block;
+      }
+      svg {
+        margin: auto;
+        display: block;
+      }
+    </style>
+
     <script type="text/javascript">
+      /**
+       * Add listener to update SVG when input is changed when :
+       * - Enter is pressed
+       * - input loses focus
+       */
+      document.addEventListener("DOMContentLoaded", function () {
+        const inputs = document.querySelectorAll(
+          "#text, #width, #height, #transparency, #textColor, #fontSize, #gradient"
+        );
+        inputs.forEach((input) => {
+          input.addEventListener("blur", updateSVG);
+          input.addEventListener("keyup", function (event) {
+            if (event.key === "Enter") {
+              updateSVG();
+            }
+          });
+        });
+      });
+
       function updateSVG() {
-        const texte = document.getElementById("texte").value;
-        const largeur = document.getElementById("largeur").value;
-        const hauteur = document.getElementById("hauteur").value;
+        const width = document.getElementById("width").value;
+        const height = document.getElementById("height").value;
 
-        // Mettre à jour le texte
-        document.getElementById("texteSVG").textContent = texte;
+        //document.getElementById("rectangle").setAttribute("width", width);
+        //document.getElementById("rectangle").setAttribute("height", height);
 
-        // Mettre à jour les dimensions
-        const svgElement = document.getElementById("monSVG");
-        svgElement.setAttribute("width", largeur);
-        svgElement.setAttribute("height", hauteur);
+        document.getElementById("maskText").setAttribute("width", width);
+        document.getElementById("maskText").setAttribute("height", height);
 
-        document.getElementById("rectangle").setAttribute("width", largeur);
-        document.getElementById("rectangle").setAttribute("height", hauteur);
+        const svgElement = document.getElementById("mySVG");
+        svgElement.setAttribute("width", width);
+        svgElement.setAttribute("height", height);
 
-        // Mettre à jour le rectangle du masque avec les nouvelles dimensions
-        document.getElementById("maskRect").setAttribute("width", largeur);
-        document.getElementById("maskRect").setAttribute("height", hauteur);
+        const text = document.getElementById("text").value;
+        document.getElementById("svgText").textContent = text;
+
+        const textColor = document.getElementById("textColor").value;
+        document.getElementById("svgText").setAttribute("fill", textColor);
+
+        const transparency = document.getElementById("transparency").value;
+        const gradientStops = document.querySelectorAll("#gradient stop");
+        gradientStops[1].setAttribute("stop-color", textColor); // Pour changer la couleur du dégradé
+        gradientStops[1].setAttribute("stop-opacity", transparency / 100);
+
+        const fontSize = document.getElementById("fontSize").value;
+        document.getElementById("svgText").style.fontSize = fontSize + "px";
       }
 
       function downloadSVG() {
-        const svgElement = document.getElementById("monSVG");
+        const separator = "_";
+        const height = document.getElementById("height").value;
+        const width = document.getElementById("width").value;
+        const text = document.getElementById("text").value;
+        const textColor = document.getElementById("textColor").value;
+        const filename =
+          text +
+          separator +
+          textColor +
+          separator +
+          width +
+          "x" +
+          height +
+          ".svg";
+        const svgElement = document.getElementById("mySVG");
         const serializer = new XMLSerializer();
         const svgString = serializer.serializeToString(svgElement);
         const blob = new Blob([svgString], { type: "image/svg+xml" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.setAttribute("download", "image.svg");
+        a.setAttribute("download", filename);
         a.setAttribute("href", url);
         a.click();
       }
     </script>
   </head>
   <body>
-    <label for="texte">Texte:</label>
-    <input type="text" id="texte" value="Bonjour" />
-    <label for="largeur">Largeur:</label>
-    <input type="number" id="largeur" value="300" />
-    <label for="hauteur">Hauteur:</label>
-    <input type="number" id="hauteur" value="100" />
-    <button onclick="updateSVG()">Mettre à jour</button>
-    <button onclick="downloadSVG()">Télécharger SVG</button>
-
-    <svg id="monSVG" width="300" height="100">
-      <defs>
-        <!-- Définir le masque de dégradé d'opacité -->
-        <linearGradient id="maskGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color: white; stop-opacity: 1" />
-          <stop offset="100%" style="stop-color: white; stop-opacity: 0" />
-        </linearGradient>
-        <mask id="mask">
-          <rect
-            id="maskRect"
-            x="0"
-            y="0"
-            width="300"
-            height="100"
-            fill="url(#maskGradient)"
-          />
-        </mask>
-      </defs>
-      <rect
-        id="rectangle"
-        x="0"
-        y="0"
-        rx="15"
-        ry="15"
-        width="300"
-        height="100"
-        style="fill: black"
-      />
-      <text
-        id="texteSVG"
-        x="50%"
-        y="50%"
-        dominant-baseline="middle"
-        text-anchor="middle"
-        font-size="24"
-        font-family="Verdana"
-        fill="white"
-      >
-        Bonjour
-      </text>
-      <!-- Application du masque -->
-      <rect
-        x="0"
-        y="0"
-        width="300"
-        height="100"
-        fill="black"
-        mask="url(#mask)"
-      />
-    </svg>
+    <div style="max-width: 500px; margin: auto; padding: 20px">
+      <div class="form-group">
+        <label class="form-label" for="text">Text</label>
+        <input class="form-input" type="text" id="text" value="Text2svg" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="textColor">Text color</label>
+        <input class="form-input" type="color" id="textColor" value="#E27474" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="fontSize">Font size</label>
+        <input
+          class="form-input"
+          type="number"
+          id="fontSize"
+          min="10"
+          max="100"
+          value="110"
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="width">Width</label>
+        <input class="form-input" type="number" id="width" value="500" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="height">Height</label>
+        <input class="form-input" type="number" id="height" value="300" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="transparency">Transparency (%)</label>
+        <input
+          class="form-input"
+          type="number"
+          id="transparency"
+          min="0"
+          max="100"
+          value="0"
+        />
+      </div>
+    </div>
+    <div id="svg-container" style="width: 500; height: 300">
+      <svg id="mySVG">
+        <defs>
+          <!-- Définir le masque de dégradé d'opacité -->
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color: white; stop-opacity: 1" />
+            <stop offset="100%" />
+          </linearGradient>
+          <mask id="mask">
+            <text
+              id="maskText"
+              x="50%"
+              y="50%"
+              dominant-baseline="middle"
+              text-anchor="middle"
+              font-size="110"
+              font-family="Verdana"
+              fill="url(#gradient)"
+            >
+              Text2svg
+            </text>
+          </mask>
+        </defs>
+        <text
+          id="svgText"
+          x="50%"
+          y="50%"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          font-size="110"
+          font-family="Verdana"
+          fill="#E27474"
+          mask="url(#mask)"
+        >
+          Bonjour
+        </text>
+      </svg>
+    </div>
+    <div>
+      <button onclick="downloadSVG()">Download SVG</button>
+    </div>
+    <script type="text/javascript">
+      updateSVG();
+    </script>
   </body>
 </html>
